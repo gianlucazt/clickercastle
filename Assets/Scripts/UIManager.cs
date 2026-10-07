@@ -8,7 +8,7 @@ public class UIManager : MonoBehaviour
 
     public bool fadeToBlack, fadeFromBlack;
     public Image blackScreen;
-    public float fadeSpeed = 2f;
+    public float fadeSpeed = 10f;
 
     //player reference
 

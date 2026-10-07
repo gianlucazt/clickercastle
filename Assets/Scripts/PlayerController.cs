@@ -20,8 +20,6 @@ public class PlayerController : MonoBehaviour
     private bool isGroundedBool = false;
     private bool canDoubleJump = false;
 
-    public Animator playeranim;
-
     public Controls controlmode;
    
 
@@ -104,12 +102,6 @@ public class PlayerController : MonoBehaviour
                 nextFireTime = Time.time + 1f / fireRate; // Set the next allowed fire time
             }
         }
-        SetAnimations();
-
-        if (moveX != 0)
-        {
-            FlipSprite(moveX);
-        }
 
         //impactEffect
 
@@ -125,23 +117,6 @@ public class PlayerController : MonoBehaviour
 
         
     }
-    public void SetAnimations()
-    {
-        if (moveX != 0 && isGroundedBool)
-        {
-            playeranim.SetBool("run", true);
-            footEmissions.rateOverTime= 35f;
-        }
-        else
-        {
-            playeranim.SetBool("run",false);
-            footEmissions.rateOverTime = 0f;
-        }
-
-        playeranim.SetBool("isGrounded", isGroundedBool);
-       
-    }
-
     private void FlipSprite(float direction)
     {
         if (direction > 0)
@@ -172,7 +147,6 @@ public class PlayerController : MonoBehaviour
     {
         rb.linearVelocity = new Vector2(rb.linearVelocity.x, 0); // Zero out vertical velocity
         rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
-        playeranim.SetTrigger("jump");
     }
 
     private bool IsGrounded()
