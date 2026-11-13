@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -12,10 +13,15 @@ public class InimigoBolaSimples : MonoBehaviour
 
     private int currentWaypointIndex = 0;
     private NavMeshAgent agent;
+    private Rigidbody2D rb;
+    [SerializeField] private float velocidadeLancamento = 8f;
+    [SerializeField] private float duracaoLancamento = 0.25f;
+    private bool estaSendoLancado;
 
     void Start()
     {
         agent = GetComponent<NavMeshAgent>();
+        rb = GetComponent<Rigidbody2D>();
 
         if (agent != null)
         {
@@ -26,7 +32,7 @@ public class InimigoBolaSimples : MonoBehaviour
 
     void Update()
     {
-        if (agent == null)
+        if (agent == null || estaSendoLancado)
             return;
 
         if (Player == null)
@@ -87,7 +93,7 @@ public class InimigoBolaSimples : MonoBehaviour
 
     void Perseguir()
     {
-        // bem... ele coloco o jogador como alvo ai segue ele... é bem auto explicatico!
+        // bem... ele coloca o jogador como target
         moveTowards(Player.position);
     }
 
@@ -102,5 +108,40 @@ public class InimigoBolaSimples : MonoBehaviour
     void moveTowards(Vector3 targetPosition)
     {
         agent.SetDestination(targetPosition);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Cursor") && !estaSendoLancado)
+        {
+            // calcula a direção do lançamento com base na posição do cursor e do inimigo
+            Vector2 direcao = (Vector2)(transform.position - collision.transform.position);
+            if (direcao.sqrMagnitude == 0f)
+                direcao = Vector2.up;
+            else
+                direcao.Normalize();
+
+            StartCoroutine(Lancar(direcao));
+        }
+    }
+
+    private IEnumerator Lancar(Vector2 direcao)
+    {
+        //desliga o NavMeshAgent e ativa a física para o lançamento
+        estaSendoLancado = true;
+        agent.isStopped = true;
+        agent.updatePosition = false;
+        agent.ResetPath();
+        rb.linearVelocity = direcao * velocidadeLancamento;
+
+        // espera a duração do lançamento
+        yield return new WaitForSeconds(duracaoLancamento);
+
+        // reativa o NavMeshAgent e desativa a física
+        rb.linearVelocity = Vector2.zero;
+        agent.Warp(rb.position);
+        agent.updatePosition = true;
+        agent.isStopped = false;
+        estaSendoLancado = false;
     }
 }

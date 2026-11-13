@@ -7,6 +7,7 @@ TagManager:
   - killzone
   - Coin
   - Cursor
+  - AntiCursor
   layers:
   - Default
   - TransparentFX

@@ -129,7 +129,8 @@ public class GameManager : MonoBehaviour
         // Check if the game is still over (in case player respawns earlier)
         if (isGameOver)
         {
-            SceneManager.LoadScene(1);
+         UnityEngine.SceneManagement.SceneManager.LoadScene(
+         UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
 
             
         }
