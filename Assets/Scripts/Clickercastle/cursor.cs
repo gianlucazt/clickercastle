@@ -1,13 +1,18 @@
 using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class cursor : MonoBehaviour
 {
     private Collider2D colisor2d;
+    private Rigidbody2D corpo2d;
     private bool estaTangivel = false;
+    private Coroutine rotinaTangibilidade;
 
     void Start()
     {
+        corpo2d = GetComponent<Rigidbody2D>();
+
         // pega o collider2d do objeto
         colisor2d = GetComponent<Collider2D>();
 
@@ -19,6 +24,15 @@ public class cursor : MonoBehaviour
     }
     void Update()
     {
+        if (Input.GetMouseButtonDown(0) && !estaTangivel)
+        {
+            // Inicia o temporizador
+            rotinaTangibilidade = StartCoroutine(AtivarTangibilidade());
+        }
+    }
+
+    void FixedUpdate()
+    {
         // converte posição do mouse para o mundo do jogo
         Vector3 posicaoMouseMundo = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 
@@ -26,13 +40,7 @@ public class cursor : MonoBehaviour
         posicaoMouseMundo.z = transform.position.z;
 
         // Move o objeto para o mouse
-        transform.position = posicaoMouseMundo;
-
-        if (Input.GetMouseButtonDown(0) && !estaTangivel)
-        {
-            // Inicia o temporizador
-            StartCoroutine(AtivarTangibilidade());
-        }
+        corpo2d.MovePosition(new Vector2(posicaoMouseMundo.x, posicaoMouseMundo.y));
     }
 
     IEnumerator AtivarTangibilidade()
@@ -51,5 +59,23 @@ public class cursor : MonoBehaviour
         
         // Libera para o jogador poder clicar de novo
         estaTangivel = false;
+        rotinaTangibilidade = null;
     }
+
+    void OnCollisionStay2D(Collision2D collision)
+    {
+        if (collision.collider.CompareTag("Player") &&
+            collision.collider.IsTouchingLayers(LayerMask.GetMask("ground")))
+        {
+            colisor2d.enabled = false;
+            estaTangivel = false;
+
+            if (rotinaTangibilidade != null)
+            {
+                StopCoroutine(rotinaTangibilidade);
+                rotinaTangibilidade = null;
+            }
+        }
+    }
+
 }
