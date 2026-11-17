@@ -31,6 +31,26 @@ public class cursor : MonoBehaviour
         }
     }
 
+   private void OnCollisionEnter2D(Collision2D collision)
+{
+    // Verifica se quem colidiu é o jogador e se ele está acima da plataforma
+    if (collision.gameObject.CompareTag("Player"))
+    {
+        // Garante que o jogador está pisando em cima (normal apontando para baixo)
+        if (collision.GetContact(0).normal.y < -0.5f)
+        {
+            collision.transform.SetParent(this.transform);
+        }
+    }
+}
+
+private void OnCollisionExit2D(Collision2D collision)
+{
+    if (collision.gameObject.CompareTag("Player"))
+    {
+        collision.transform.SetParent(null);
+    }
+}
     void FixedUpdate()
     {
         // converte posição do mouse para o mundo do jogo

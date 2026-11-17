@@ -132,13 +132,10 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        // Player movement
         if (controlmode == Controls.pc)
         {
             moveX = Input.GetAxis("Horizontal");
         }
-       
-
 
         rb.linearVelocity = new Vector2(moveX * moveSpeed, rb.linearVelocity.y);
     }
