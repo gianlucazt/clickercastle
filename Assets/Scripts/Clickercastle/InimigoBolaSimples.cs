@@ -9,6 +9,9 @@ public class InimigoBolaSimples : MonoBehaviour
     [SerializeField] private Transform Player;
     public Transform[] waypoints;
 
+    [Header("Configurações de Visão")]
+    [SerializeField] private LayerMask camadaObstaculos;
+
     public EnemyState currentState = EnemyState.Patrulhar;
 
     private int currentWaypointIndex = 0;
@@ -45,12 +48,14 @@ public class InimigoBolaSimples : MonoBehaviour
         // aqui ele olha a distacia do inimigo para o jogador, daqui dependendo da distancia, ele muda de estados!
         float DistanciaParaJogador = Vector3.Distance(transform.position, Player.position);
 
-        // dependendo da distancia muda de es
-        if (DistanciaParaJogador <= 2f)
+        bool vendoJogador = DistanciaParaJogador <= 8f && TemLinhaDeVisao();
+
+        // dependendo da distancia muda de estado
+        if (vendoJogador && DistanciaParaJogador <= 2f)
         {
             currentState = EnemyState.Atacar;
         }
-        else if (DistanciaParaJogador <= 8f)
+        else if (vendoJogador)
         {
             currentState = EnemyState.Perseguir;
         }
@@ -72,6 +77,20 @@ public class InimigoBolaSimples : MonoBehaviour
                 Atacar();
                 break;
         }
+    }
+
+    bool TemLinhaDeVisao()
+    {
+        Vector2 origem = transform.position;
+        Vector2 destino = Player.position;
+        Vector2 direcao = (destino - origem).normalized;
+        float distancia = Vector2.Distance(origem, destino);
+
+        RaycastHit2D hit = Physics2D.Raycast(origem, direcao, distancia, camadaObstaculos);
+
+        Debug.DrawRay(origem, direcao * distancia, hit.collider == null ? Color.green : Color.red);
+
+        return hit.collider == null;
     }
 
     void Patrulhar()
